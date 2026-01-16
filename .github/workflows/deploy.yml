@@ -11,6 +11,7 @@ permissions:
 
 jobs:
   deploy:
+    # ✅ 환경 설정을 추가하여 배포 권한 문제를 해결합니다.
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -19,7 +20,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # index.html의 자리표시자를 실제 Secrets 키로 교체합니다.
       - name: Inject API Key
         run: |
           sed -i "s/REPLACE_ME_WITH_API_KEY/${{ secrets.GEMINI_API_KEY }}/g" index.html
