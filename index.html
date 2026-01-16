@@ -23,16 +23,17 @@
     <script type="importmap">
     {
       "imports": {
-        "react": "https://esm.sh/react@18",
-        "react-dom/client": "https://esm.sh/react-dom@18/client",
-        "@google/genai": "https://esm.sh/@google/genai",
-        "lucide-react": "https://esm.sh/lucide-react"
+        "react": "https://esm.sh/react@18.2.0",
+        "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
+        "@google/genai": "https://esm.sh/@google/genai@1.1.4",
+        "lucide-react": "https://esm.sh/lucide-react@0.263.1"
       }
     }
     </script>
 </head>
 <body>
     <div id="root"></div>
+
     <script type="module">
         import React, { useState } from 'react';
         import ReactDOM from 'react-dom/client';
@@ -55,27 +56,34 @@
                     const res = await model.generateContent(`Create a Midjourney prompt for: ${input}`);
                     setResult(res.response.text());
                 } catch (e) {
-                    setResult("에러가 발생했습니다. API 키를 확인해주세요.");
+                    setResult("에러가 발생했습니다. API 키 설정을 확인해주세요.");
                 } finally { setLoading(false); }
             };
 
+            // React.createElement를 사용하여 에러 #31을 방지합니다.
             return React.createElement('div', { className: 'min-h-screen flex items-center justify-center p-6' },
-                React.createElement('div', { className: 'max-w-md w-full bg-white rounded-3xl shadow-xl p-8 border border-slate-100' },
-                    React.createElement('h1', { className: 'text-2xl font-bold mb-6 flex items-center gap-2' }, 
-                        React.createElement(Sparkles, { className: 'text-blue-600' }), "AI Art Academy"),
-                    React.createElement('div', { className: 'relative mb-6' },
+                React.createElement('div', { className: 'max-w-md w-full bg-white rounded-[2.5rem] shadow-2xl p-8 border border-slate-100' },
+                    React.createElement('div', { className: 'mb-8' },
+                        React.createElement('div', { className: 'flex items-center gap-2 text-blue-600 font-bold mb-2' },
+                            React.createElement(Sparkles, { size: 20 }), "AI Art Academy"
+                        ),
+                        React.createElement('p', { className: 'text-slate-500 text-sm' }, "상상을 프롬프트로 바꿔보세요.")
+                    ),
+                    React.createElement('div', { className: 'relative' },
                         React.createElement('input', {
-                            className: 'w-full p-4 bg-slate-50 border rounded-2xl outline-none focus:border-blue-500',
+                            className: 'w-full p-4 bg-slate-50 border rounded-2xl outline-none focus:border-blue-500 transition-all',
                             value: input,
                             onChange: (e) => setInput(e.target.value),
-                            placeholder: '그림 주제를 입력하세요...'
+                            placeholder: '이미지 주제 입력...',
+                            onKeyDown: (e) => e.key === 'Enter' && generatePrompt()
                         }),
                         React.createElement('button', {
                             onClick: generatePrompt,
+                            disabled: loading,
                             className: 'absolute right-2 top-2 p-2 bg-blue-600 text-white rounded-xl'
-                        }, loading ? React.createElement(RefreshCw, { className: 'animate-spin' }) : React.createElement(Send))
+                        }, loading ? React.createElement(RefreshCw, { className: 'animate-spin', size: 20 }) : React.createElement(Send, { size: 20 }))
                     ),
-                    result && React.createElement('div', { className: 'p-4 bg-slate-900 rounded-2xl text-slate-200 text-sm font-mono' }, result)
+                    result && React.createElement('div', { className: 'mt-6 p-5 bg-slate-900 rounded-3xl text-slate-200 text-sm font-mono leading-relaxed' }, result)
                 )
             );
         }
