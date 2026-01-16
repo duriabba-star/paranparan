@@ -41,7 +41,8 @@
                     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
                     const res = await model.generateContent("Create a Midjourney prompt for: " + input);
                     const text = await res.response.text();
-                    setResult(text);
+                    // 에러 #31 방지를 위해 확실하게 문자열로 변환
+                    setResult(String(text)); 
                 } catch (e) {
                     setResult("에러가 발생했습니다. 잠시 후 다시 시도해주세요.");
                 } finally {
@@ -49,28 +50,30 @@
                 }
             };
 
-            // Error #31 방지를 위해 모든 요소를 React.createElement로 명확히 정의
+            // 에러 방지를 위해 가장 안정적인 createElement 구조 사용
             return React.createElement('div', { className: 'min-h-screen flex items-center justify-center p-4' },
-                React.createElement('div', { className: 'max-w-md w-full bg-white rounded-3xl shadow-xl p-8' },
-                    React.createElement('div', { className: 'flex items-center gap-2 mb-6' },
-                        React.createElement(Sparkles, { className: 'text-blue-600', size: 24 }),
-                        React.createElement('h1', { className: 'text-xl font-bold' }, 'AI Art Academy')
+                React.createElement('div', { className: 'max-w-md w-full bg-white rounded-[2.5rem] shadow-2xl p-8 border border-slate-100' },
+                    React.createElement('div', { className: 'flex items-center gap-2 mb-8' },
+                        React.createElement('div', { className: 'p-2 bg-blue-600 rounded-xl' }, 
+                            React.createElement(Sparkles, { className: 'text-white', size: 20 })
+                        ),
+                        React.createElement('h1', { className: 'text-xl font-extrabold text-slate-800' }, 'AI Art Academy')
                     ),
                     React.createElement('div', { className: 'relative' },
                         React.createElement('input', {
-                            className: 'w-full p-4 bg-slate-100 rounded-2xl border-none outline-none focus:ring-2 focus:ring-blue-500',
+                            className: 'w-full p-5 bg-slate-50 rounded-2xl border-none outline-none focus:ring-2 focus:ring-blue-500 transition-all font-medium text-slate-700',
                             value: input,
                             onChange: (e) => setInput(e.target.value),
-                            placeholder: '주제를 입력하세요...',
+                            placeholder: '그림 주제를 입력하세요...',
                             onKeyDown: (e) => e.key === 'Enter' && generatePrompt()
                         }),
                         React.createElement('button', {
                             onClick: generatePrompt,
-                            disabled: loading,
-                            className: 'absolute right-2 top-2 p-2 bg-blue-600 text-white rounded-xl'
-                        }, loading ? React.createElement(RefreshCw, { className: 'animate-spin' }) : React.createElement(Send))
+                            disabled: loading || !input.trim(),
+                            className: 'absolute right-3 top-3 p-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:bg-slate-200 transition-all shadow-lg'
+                        }, loading ? React.createElement(RefreshCw, { className: 'animate-spin', size: 20 }) : React.createElement(Send, { size: 20 }))
                     ),
-                    result && React.createElement('div', { className: 'mt-6 p-4 bg-slate-900 rounded-2xl text-slate-200 text-sm font-mono' }, result)
+                    result && React.createElement('div', { className: 'mt-8 p-6 bg-slate-900 rounded-3xl text-slate-200 text-sm font-mono leading-relaxed shadow-inner' }, result)
                 )
             );
         }
