@@ -8,7 +8,7 @@ import PromptMasterClass from './components/PromptMasterClass';
 import AiBasics from './components/AiBasics';
 import GemConfiguration from './components/GemConfiguration'; // Import new component
 import { ArrowRight, ArrowLeft, CheckCircle2, XCircle } from 'lucide-react';
-
+const API_KEY = "REPLACE_ME_WITH_API_KEY";
 export default function App() {
   const [isLandingPage, setIsLandingPage] = useState(true);
   const [currentStepId, setCurrentStepId] = useState(1);
