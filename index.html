@@ -89,4 +89,45 @@
                             React.createElement(Sparkles, { size: 24 }),
                             React.createElement('h1', { className: 'text-2xl font-black tracking-tight' }, 'AI Art Academy')
                         ),
-                        React.createElement('p', { className: 'text-indigo-100 text-sm opacity-90' }, '상상을 현실로 만드는 프
+                        React.createElement('p', { className: 'text-indigo-100 text-sm opacity-90' }, '상상을 현실로 만드는 프롬프트 생성기')
+                    ),
+                    // Content
+                    React.createElement('div', { className: 'p-8 space-y-6' },
+                        React.createElement('div', null,
+                            React.createElement('label', { className: 'block text-xs font-bold text-slate-400 uppercase tracking-widest mb-3' }, 'Topic'),
+                            React.createElement('div', { className: 'relative' },
+                                React.createElement('input', {
+                                    className: 'w-full p-5 bg-slate-50 rounded-2xl border-none outline-none focus:ring-2 focus:ring-indigo-500 font-medium text-slate-700 transition-all',
+                                    value: input,
+                                    onChange: (e) => setInput(e.target.value),
+                                    placeholder: '예: 사이버펑크 스타일의 고양이',
+                                    onKeyDown: (e) => e.key === 'Enter' && generatePrompt()
+                                }),
+                                React.createElement('button', {
+                                    onClick: generatePrompt,
+                                    disabled: loading || !input.trim(),
+                                    className: 'absolute right-3 top-3 bottom-3 px-4 bg-indigo-600 text-white rounded-xl shadow-lg hover:bg-indigo-700 disabled:bg-slate-200 transition-all'
+                                }, loading ? React.createElement(RefreshCw, { className: 'animate-spin' }) : React.createElement(Send, { size: 20 }))
+                            )
+                        ),
+                        // Result area
+                        result && React.createElement('div', { className: 'space-y-3 animate-in fade-in slide-in-from-bottom-4' },
+                            React.createElement('label', { className: 'block text-xs font-bold text-slate-400 uppercase tracking-widest' }, 'Result Prompt'),
+                            React.createElement('div', { className: 'relative group' },
+                                React.createElement('div', { className: 'p-6 bg-slate-900 rounded-3xl text-indigo-100 text-sm font-mono leading-relaxed' }, result),
+                                React.createElement('button', {
+                                    onClick: copyToClipboard,
+                                    className: 'absolute top-3 right-3 p-2 bg-slate-800 text-slate-400 rounded-lg hover:text-white transition-colors'
+                                }, copied ? React.createElement(Check, { size: 16, className: 'text-green-400' }) : React.createElement(Copy, { size: 16 }))
+                            )
+                        )
+                    )
+                )
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(React.createElement(App));
+    </script>
+</body>
+</html>
