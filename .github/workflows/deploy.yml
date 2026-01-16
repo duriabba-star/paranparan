@@ -11,24 +11,18 @@ permissions:
 
 jobs:
   deploy:
-    # ✅ 이 부분이 추가되었습니다 (환경 설정)
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # index.html의 자리표시자를 실제 Secrets 키로 교체합니다.
       - name: Inject API Key
         run: |
-          if [ -f "App.tsx" ]; then
-            sed -i "s/REPLACE_ME_WITH_API_KEY/${{ secrets.GEMINI_API_KEY }}/g" App.tsx
-          fi
-          if [ -f "index.html" ]; then
-            sed -i "s/REPLACE_ME_WITH_API_KEY/${{ secrets.GEMINI_API_KEY }}/g" index.html
-          fi
+          sed -i "s/REPLACE_ME_WITH_API_KEY/${{ secrets.GEMINI_API_KEY }}/g" index.html
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
