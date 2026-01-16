@@ -17,14 +17,14 @@
     }
     </script>
 </head>
-<body class="bg-slate-50 min-h-screen">
+<body class="bg-slate-50">
     <div id="root"></div>
 
     <script type="module">
         import React, { useState } from 'react';
         import ReactDOM from 'react-dom/client';
         import * as GoogleGenAI from "@google/genai";
-        import { Sparkles, Send, Copy, RefreshCw } from 'lucide-react';
+        import { Sparkles, Send, RefreshCw } from 'lucide-react';
 
         const API_KEY = "REPLACE_ME_WITH_API_KEY";
 
@@ -39,26 +39,26 @@
                 try {
                     const genAI = new GoogleGenAI.GoogleGenerativeAI(API_KEY);
                     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-                    const res = await model.generateContent(`Create a Midjourney prompt for: ${input}`);
-                    const response = await res.response;
-                    setResult(response.text());
+                    const res = await model.generateContent("Create a Midjourney prompt for: " + input);
+                    const text = await res.response.text();
+                    setResult(text);
                 } catch (e) {
-                    setResult("에러가 발생했습니다. API 키와 배포 설정을 확인해주세요.");
+                    setResult("에러가 발생했습니다. 잠시 후 다시 시도해주세요.");
                 } finally {
                     setLoading(false);
                 }
             };
 
-            // 에러 #31 방지를 위한 안전한 렌더링 구조
-            return React.createElement('div', { className: 'flex items-center justify-center p-6 min-h-screen' },
-                React.createElement('div', { className: 'max-w-md w-full bg-white rounded-[2.5rem] shadow-2xl p-8' },
-                    React.createElement('div', { className: 'flex items-center gap-2 mb-8' },
-                        React.createElement(Sparkles, { className: 'text-blue-600' }),
+            // Error #31 방지를 위해 모든 요소를 React.createElement로 명확히 정의
+            return React.createElement('div', { className: 'min-h-screen flex items-center justify-center p-4' },
+                React.createElement('div', { className: 'max-w-md w-full bg-white rounded-3xl shadow-xl p-8' },
+                    React.createElement('div', { className: 'flex items-center gap-2 mb-6' },
+                        React.createElement(Sparkles, { className: 'text-blue-600', size: 24 }),
                         React.createElement('h1', { className: 'text-xl font-bold' }, 'AI Art Academy')
                     ),
-                    React.createElement('div', { className: 'relative mb-6' },
+                    React.createElement('div', { className: 'relative' },
                         React.createElement('input', {
-                            className: 'w-full p-4 bg-slate-100 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500',
+                            className: 'w-full p-4 bg-slate-100 rounded-2xl border-none outline-none focus:ring-2 focus:ring-blue-500',
                             value: input,
                             onChange: (e) => setInput(e.target.value),
                             placeholder: '주제를 입력하세요...',
@@ -70,12 +70,13 @@
                             className: 'absolute right-2 top-2 p-2 bg-blue-600 text-white rounded-xl'
                         }, loading ? React.createElement(RefreshCw, { className: 'animate-spin' }) : React.createElement(Send))
                     ),
-                    result && React.createElement('div', { className: 'p-5 bg-slate-900 rounded-2xl text-slate-200 text-sm font-mono' }, result)
+                    result && React.createElement('div', { className: 'mt-6 p-4 bg-slate-900 rounded-2xl text-slate-200 text-sm font-mono' }, result)
                 )
             );
         }
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
+        const container = document.getElementById('root');
+        const root = ReactDOM.createRoot(container);
         root.render(React.createElement(App));
     </script>
 </body>
