@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AI Art Academy</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <link rel="stylesheet" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
     <script>
       tailwind.config = {
         theme: {
@@ -16,17 +16,16 @@
       }
     </script>
     <style>
-      body { font-family: 'Pretendard', sans-serif; background-color: #f8fafc; }
-      ::-webkit-scrollbar { width: 8px; }
-      ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+      body { font-family: 'Pretendard', sans-serif; background-color: #f8fafc; margin: 0; }
+      .glass { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); }
     </style>
     <script type="importmap">
     {
       "imports": {
         "react": "https://esm.sh/react@18.2.0",
         "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
-        "@google/genai": "https://esm.sh/@google/genai@1.1.4",
-        "lucide-react": "https://esm.sh/lucide-react@0.263.1"
+        "@google/genai": "https://esm.sh/@google/genai@1.3.0",
+        "lucide-react": "https://esm.sh/lucide-react@0.460.0"
       }
     }
     </script>
@@ -48,42 +47,57 @@
             const [loading, setLoading] = useState(false);
 
             const generatePrompt = async () => {
-                if (!input.trim()) return;
+                if (!input.trim() || loading) return;
                 setLoading(true);
                 try {
                     const genAI = new GoogleGenAI.GoogleGenerativeAI(API_KEY);
                     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-                    const res = await model.generateContent(`Create a Midjourney prompt for: ${input}`);
-                    setResult(res.response.text());
+                    const res = await model.generateContent(`Create a high-quality Midjourney prompt for: ${input}. Response should start with /imagine prompt:`);
+                    const text = await res.response.text();
+                    setResult(text);
                 } catch (e) {
-                    setResult("에러가 발생했습니다. API 키 설정을 확인해주세요.");
-                } finally { setLoading(false); }
+                    setResult("에러 발생: API 키가 올바르지 않거나 할당량이 초과되었습니다.");
+                    console.error(e);
+                } finally {
+                    setLoading(false);
+                }
             };
 
-            // React.createElement를 사용하여 에러 #31을 방지합니다.
-            return React.createElement('div', { className: 'min-h-screen flex items-center justify-center p-6' },
-                React.createElement('div', { className: 'max-w-md w-full bg-white rounded-[2.5rem] shadow-2xl p-8 border border-slate-100' },
-                    React.createElement('div', { className: 'mb-8' },
-                        React.createElement('div', { className: 'flex items-center gap-2 text-blue-600 font-bold mb-2' },
-                            React.createElement(Sparkles, { size: 20 }), "AI Art Academy"
+            // 리액트 에러 #31 방지를 위해 표준 구조로 렌더링합니다.
+            return React.createElement('div', { className: 'min-h-screen flex items-center justify-center p-6 bg-slate-50' },
+                React.createElement('div', { className: 'max-w-md w-full bg-white rounded-[2.5rem] shadow-2xl p-8 border border-white' },
+                    React.createElement('div', { className: 'flex items-center gap-2 mb-8' },
+                        React.createElement('div', { className: 'p-2 bg-blue-600 rounded-xl' }, 
+                            React.createElement(Sparkles, { size: 20, className: 'text-white' })
                         ),
-                        React.createElement('p', { className: 'text-slate-500 text-sm' }, "상상을 프롬프트로 바꿔보세요.")
+                        React.createElement('h1', { className: 'text-xl font-black text-slate-800' }, 'AI Art Academy')
                     ),
-                    React.createElement('div', { className: 'relative' },
-                        React.createElement('input', {
-                            className: 'w-full p-4 bg-slate-50 border rounded-2xl outline-none focus:border-blue-500 transition-all',
-                            value: input,
-                            onChange: (e) => setInput(e.target.value),
-                            placeholder: '이미지 주제 입력...',
-                            onKeyDown: (e) => e.key === 'Enter' && generatePrompt()
-                        }),
-                        React.createElement('button', {
-                            onClick: generatePrompt,
-                            disabled: loading,
-                            className: 'absolute right-2 top-2 p-2 bg-blue-600 text-white rounded-xl'
-                        }, loading ? React.createElement(RefreshCw, { className: 'animate-spin', size: 20 }) : React.createElement(Send, { size: 20 }))
-                    ),
-                    result && React.createElement('div', { className: 'mt-6 p-5 bg-slate-900 rounded-3xl text-slate-200 text-sm font-mono leading-relaxed' }, result)
+                    React.createElement('div', { className: 'space-y-4' },
+                        React.createElement('div', { className: 'relative' },
+                            React.createElement('input', {
+                                className: 'w-full p-4 bg-slate-100 border-none rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 transition-all font-medium',
+                                value: input,
+                                onChange: (e) => setInput(e.target.value),
+                                placeholder: '이미지 주제를 입력하세요...',
+                                onKeyDown: (e) => e.key === 'Enter' && generatePrompt()
+                            }),
+                            React.createElement('button', {
+                                onClick: generatePrompt,
+                                disabled: loading || !input.trim(),
+                                className: 'absolute right-2 top-2 p-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:bg-slate-300 transition-all'
+                            }, loading ? React.createElement(RefreshCw, { size: 20, className: 'animate-spin' }) : React.createElement(Send, { size: 20 }))
+                        ),
+                        result && React.createElement('div', { className: 'mt-6' },
+                            React.createElement('div', { className: 'flex justify-between items-center mb-2' },
+                                React.createElement('span', { className: 'text-xs font-bold text-slate-400' }, 'RESULT'),
+                                React.createElement('button', {
+                                    onClick: () => { navigator.clipboard.writeText(result); alert('복사되었습니다!'); },
+                                    className: 'text-xs font-bold text-blue-600 flex items-center gap-1'
+                                }, React.createElement(Copy, { size: 12 }), 'COPY')
+                            ),
+                            React.createElement('div', { className: 'p-5 bg-slate-900 rounded-2xl text-slate-200 text-sm font-mono leading-relaxed shadow-inner' }, result)
+                        )
+                    )
                 )
             );
         }
