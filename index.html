@@ -17,12 +17,11 @@
     </script>
     <style>
         body { font-family: 'Pretendard', sans-serif; }
-        .loading-spin { animation: spin 1s linear infinite; }
-        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
     </style>
 </head>
-<body class="bg-slate-50 min-h-screen">
-    <div id="root"></div>
+<body class="bg-slate-50 min-h-screen flex items-center justify-center p-4">
+    <div id="root" class="w-full max-w-md"></div>
 
     <script type="module">
         import React, { useState } from 'react';
@@ -43,41 +42,56 @@
                 try {
                     const genAI = new GoogleGenAI.GoogleGenerativeAI(API_KEY);
                     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-                    const res = await model.generateContent("Create a Midjourney prompt for: " + input);
+                    const res = await model.generateContent("Create a highly detailed Midjourney prompt for: " + input + ". Respond in English.");
                     const text = await res.response.text();
-                    
-                    // 결과값을 문자열로 강제 변환
                     setResult(String(text)); 
                 } catch (e) {
-                    setResult("에러가 발생했습니다. 잠시 후 다시 시도해 주세요.");
+                    setResult("죄송합니다. 요청을 처리하는 중 오류가 발생했습니다.");
                 } finally {
                     setLoading(false);
                 }
             };
 
-            // 에러를 유발하던 외부 라이브러리 아이콘 대신 표준 태그와 이모지 사용
-            return React.createElement('div', { className: 'min-h-screen flex items-center justify-center p-4' },
-                React.createElement('div', { className: 'max-w-md w-full bg-white rounded-[2.5rem] shadow-2xl p-8 border border-slate-100' },
-                    React.createElement('div', { className: 'flex items-center gap-2 mb-8' },
+            return React.createElement('div', { className: 'bg-white rounded-[2.5rem] shadow-2xl overflow-hidden' },
+                // 헤더 영역
+                React.createElement('div', { className: 'gradient-bg p-8 text-white' },
+                    React.createElement('div', { className: 'flex items-center gap-3 mb-2' },
                         React.createElement('span', { className: 'text-2xl' }, '✨'),
-                        React.createElement('h1', { className: 'text-xl font-black text-slate-800' }, 'AI Art Academy')
+                        React.createElement('h1', { className: 'text-2xl font-black tracking-tight' }, 'AI Art Academy')
                     ),
-                    React.createElement('div', { className: 'relative' },
-                        React.createElement('input', {
-                            className: 'w-full p-5 bg-slate-50 rounded-2xl border-none outline-none focus:ring-2 focus:ring-blue-500 font-medium text-slate-700',
-                            value: input,
-                            onChange: (e) => setInput(e.target.value),
-                            placeholder: '주제를 입력하세요...',
-                            onKeyDown: (e) => e.key === 'Enter' && generatePrompt()
-                        }),
-                        React.createElement('button', {
-                            onClick: generatePrompt,
-                            disabled: loading || !input.trim(),
-                            className: 'absolute right-3 top-3 p-3 bg-blue-600 text-white rounded-xl shadow-lg hover:bg-blue-700'
-                        }, loading ? '⌛' : '🚀')
-                    ),
-                    result && React.createElement('div', { className: 'mt-8 p-6 bg-slate-900 rounded-3xl text-slate-200 text-sm font-mono leading-relaxed' }, 
-                        result
+                    React.createElement('p', { className: 'text-blue-100 text-sm opacity-90' }, '상상하는 모든 이미지를 프롬프트로 만들어보세요.')
+                ),
+                // 본문 영역
+                React.createElement('div', { className: 'p-8' },
+                    React.createElement('div', { className: 'space-y-6' },
+                        React.createElement('div', null,
+                            React.createElement('label', { className: 'block text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 ml-1' }, 'Topic'),
+                            React.createElement('div', { className: 'relative' },
+                                React.createElement('input', {
+                                    className: 'w-full p-5 bg-slate-50 rounded-2xl border-none outline-none focus:ring-2 focus:ring-indigo-500 font-medium text-slate-700 transition-all placeholder:text-slate-300',
+                                    value: input,
+                                    onChange: (e) => setInput(e.target.value),
+                                    placeholder: '예: 숲속의 신비로운 성',
+                                    onKeyDown: (e) => e.key === 'Enter' && generatePrompt()
+                                }),
+                                React.createElement('button', {
+                                    onClick: generatePrompt,
+                                    disabled: loading || !input.trim(),
+                                    className: 'absolute right-3 top-3 bottom-3 px-5 bg-indigo-600 text-white rounded-xl shadow-lg hover:bg-indigo-700 transition-all disabled:bg-slate-200 font-bold'
+                                }, loading ? '...' : '생성')
+                            )
+                        ),
+                        // 결과창
+                        result && React.createElement('div', { className: 'animate-in fade-in slide-in-from-bottom-4 duration-500' },
+                            React.createElement('label', { className: 'block text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 ml-1' }, 'Result'),
+                            React.createElement('div', { className: 'p-6 bg-slate-900 rounded-3xl text-indigo-100 text-sm font-mono leading-relaxed shadow-inner' }, 
+                                result
+                            ),
+                            React.createElement('button', {
+                                onClick: () => navigator.clipboard.writeText(result),
+                                className: 'mt-3 w-full py-3 text-xs font-bold text-indigo-600 hover:text-indigo-700 transition-colors'
+                            }, '📋 프롬프트 복사하기')
+                        )
                     )
                 )
             );
