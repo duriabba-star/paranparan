@@ -16,10 +16,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # index.html 안의 문구를 깃허브 시크릿 키로 교체합니다.
+      # index.html과 App.tsx 모두에서 문구를 찾아 시크릿 키로 바꿉니다.
       - name: Inject API Key
         run: |
           sed -i "s/REPLACE_ME_WITH_API_KEY/${{ secrets.GEMINI_API_KEY }}/g" index.html
+          sed -i "s/REPLACE_ME_WITH_API_KEY/${{ secrets.GEMINI_API_KEY }}/g" App.tsx
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
