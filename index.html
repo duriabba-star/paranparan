@@ -16,11 +16,8 @@
       }
     }
     </script>
-    <style>
-        body { font-family: 'Pretendard', sans-serif; }
-    </style>
 </head>
-<body class="bg-slate-50 min-h-screen">
+<body class="bg-slate-50">
     <div id="root"></div>
 
     <script type="module">
@@ -33,36 +30,38 @@
 
         function App() {
             const [input, setInput] = useState("");
-            const [result, setResult] = useState(""); // 문자열로 초기화
+            const [result, setResult] = useState(""); 
             const [loading, setLoading] = useState(false);
 
             const generatePrompt = async () => {
                 if (!input.trim() || loading) return;
                 setLoading(true);
-                setResult(""); // 이전 결과 초기화
+                setResult(""); 
                 try {
                     const genAI = new GoogleGenAI.GoogleGenerativeAI(API_KEY);
                     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-                    const res = await model.generateContent("Create a Midjourney prompt for: " + input);
-                    const text = await res.response.text();
                     
-                    // ✅ [해결책] 객체가 아닌 순수한 문자열만 결과에 담습니다.
-                    setResult(String(text)); 
+                    const res = await model.generateContent("Create a Midjourney prompt for: " + input);
+                    const response = await res.response;
+                    const text = response.text();
+                    
+                    // [핵심 수정] 결과값이 객체일 가능성을 차단하고 반드시 문자열로 변환하여 저장합니다.
+                    setResult(typeof text === 'string' ? text : JSON.stringify(text));
                 } catch (e) {
-                    setResult("에러가 발생했습니다. 잠시 후 다시 시도해주세요.");
+                    setResult("에러가 발생했습니다. API 키나 네트워크 상태를 확인해주세요.");
                 } finally {
                     setLoading(false);
                 }
             };
 
-            // ✅ 리액트 에러 #31을 방지하는 가장 안전한 렌더링 구조
-            return React.createElement('div', { className: 'min-h-screen flex items-center justify-center p-4' },
+            // React.createElement를 사용하여 에러 #31을 방지하는 안전한 구조
+            return React.createElement('div', { className: 'min-h-screen flex items-center justify-center p-4 font-sans' },
                 React.createElement('div', { className: 'max-w-md w-full bg-white rounded-[2.5rem] shadow-2xl p-8 border border-slate-100' },
                     React.createElement('div', { className: 'flex items-center gap-2 mb-8' },
                         React.createElement('div', { className: 'p-2 bg-blue-600 rounded-xl' }, 
                             React.createElement(Sparkles, { className: 'text-white', size: 20 })
                         ),
-                        React.createElement('h1', { className: 'text-xl font-extrabold text-slate-800' }, 'AI Art Academy')
+                        React.createElement('h1', { className: 'text-xl font-black text-slate-800' }, 'AI Art Academy')
                     ),
                     React.createElement('div', { className: 'relative' },
                         React.createElement('input', {
@@ -78,8 +77,10 @@
                             className: 'absolute right-3 top-3 p-3 bg-blue-600 text-white rounded-xl shadow-lg hover:bg-blue-700 transition-all'
                         }, loading ? React.createElement(RefreshCw, { className: 'animate-spin', size: 20 }) : React.createElement(Send, { size: 20 }))
                     ),
-                    // ✅ 결과가 존재할 때만 문자열로 렌더링
-                    result ? React.createElement('div', { className: 'mt-8 p-6 bg-slate-900 rounded-3xl text-slate-200 text-sm font-mono leading-relaxed' }, result) : null
+                    // 결과 영역: 문자열인 경우에만 렌더링하도록 처리
+                    result && React.createElement('div', { className: 'mt-8 p-6 bg-slate-900 rounded-3xl text-slate-200 text-sm font-mono leading-relaxed shadow-inner' }, 
+                        String(result)
+                    )
                 )
             );
         }
