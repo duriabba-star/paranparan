@@ -11,6 +11,7 @@ permissions:
 
 jobs:
   deploy:
+    # ✅ 이 섹션이 반드시 있어야 배포가 성공합니다.
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
